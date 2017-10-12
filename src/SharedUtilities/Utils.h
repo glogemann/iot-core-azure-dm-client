@@ -81,6 +81,14 @@ namespace Utils
         return messageStream.str();
     }
 
+	template<class CharType, class ParamType1, class ParamType2>
+	std::basic_string<CharType> ConcatString(const CharType* s, ParamType1 param1, ParamType2 param2)
+	{
+		std::basic_ostringstream<CharType> messageStream;
+		messageStream << s << param1 << param2;
+		return messageStream.str();
+	}
+
     // Replaces invalid characters (like .) with _ so that the string can be used
     // as a json property name.
     std::wstring ToJsonPropertyName(const std::wstring& propertyName);

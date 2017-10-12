@@ -23,6 +23,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "FactoryReset.h"
 #include "FileTransfer.h"
 #include "ListApps.h"
+#include "Provision.h"
 #include "Reboot.h"
 #include "StartupApp.h"
 #include "StatusCodeResponse.h"

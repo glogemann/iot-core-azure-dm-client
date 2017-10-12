@@ -17,6 +17,7 @@ MODEL_REQDEF(   AddStartupApp,                8,  AddStartupAppRequest,         
 MODEL_REQDEF(   RemoveStartupApp,             9,  RemoveStartupAppRequest,              StatusCodeResponse )
 MODEL_NODEF (   StartApp,                     10, AppLifecycleRequest,                  StatusCodeResponse )
 MODEL_NODEF (   StopApp,                      11, AppLifecycleRequest,                  StatusCodeResponse )
+MODEL_REQDEF(   Provision,                    12, ProvisionRequest,                     StatusCodeResponse ) 
 MODEL_REQDEF(   ImmediateReboot,              15, ImmediateRebootRequest,               StatusCodeResponse )
 MODEL_REQDEF(   SetRebootInfo,                16, SetRebootInfoRequest,                 StatusCodeResponse )
 MODEL_ALLDEF(   GetRebootInfo,                17, GetRebootInfoRequest,                 GetRebootInfoResponse )

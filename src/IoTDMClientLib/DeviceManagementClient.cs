@@ -124,6 +124,11 @@ namespace Microsoft.Devices.Management
                 return Task.FromResult(response);
             }
         }
+        internal async Task ProvisionAsync(Message.ProvisionInfo provInfo)
+        {
+            var request = new Message.ProvisionRequest(provInfo);
+            await this._systemConfiguratorProxy.SendCommandAsync(request);
+        }
 
         internal async Task InstallAppAsync(Message.AppInstallInfo appInstallInfo)
         {
@@ -460,6 +465,14 @@ namespace Microsoft.Devices.Management
                         {
                             switch (managementProperty.Name)
                             {
+                                case "initialProvisioning":
+                                    if (managementProperty.Value.Type == JTokenType.Object)
+                                    {
+                                        Debug.WriteLine("initialProvisioning = " + managementProperty.Value.ToString());
+                                        var provBlobInfo = JsonConvert.DeserializeObject<IoTDMClient.ProvisionBlobInfo>(managementProperty.Value.ToString());
+                                        provBlobInfo.ProvisionPkgsAsync(this);
+                                    }
+                                    break;
                                 case "scheduledReboot":
                                     if (managementProperty.Value.Type == JTokenType.Object)
                                     {

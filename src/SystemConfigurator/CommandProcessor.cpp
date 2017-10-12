@@ -404,6 +404,35 @@ IResponse^ HandleUninstallApp(IRequest^ request)
     }
 }
 
+IResponse^ HandleProvision(IRequest^ request)
+{
+	try
+	{
+		auto provision = dynamic_cast<ProvisionRequest^>(request);
+		auto info = provision->ProvisionInfo;
+
+		std::vector<wstring> ppkgs;
+		for each (auto ppkg in info->ProvisioningPkgs)
+		{
+			wchar_t wszFileName[MAX_PATH] = {};
+			wchar_t wszFileExt[8] = {};
+			_wsplitpath_s(ppkg->Data(), nullptr, 0, nullptr, 0, wszFileName, ARRAYSIZE(wszFileName), wszFileExt, ARRAYSIZE(wszFileExt));
+			std::wstring systemRoot = Utils::GetSystemRootFolder();
+			wstring destPath = Utils::ConcatString(systemRoot.c_str(), wszFileName, wszFileExt);
+			TRACEP(L"DMCommand::HandleProvision dest  : ", destPath.c_str());
+			MoveFile(ppkg->Data(), destPath.c_str());
+			TRACEP(L"DMCommand::HandleProvision: ", ppkg->Data());
+		}
+		return ref new StatusCodeResponse(ResponseStatus::Success, request->Tag);
+	}
+	catch (Platform::Exception^ e)
+	{
+		std::wstring failure(e->Message->Data());
+		TRACEP(L"ERROR DMCommand::HandleProvision: ", Utils::ConcatString(failure.c_str(), e->HResult));
+		return ref new StatusCodeResponse(ResponseStatus::Failure, request->Tag);
+	}
+}
+
 IResponse^ HandleTransferFile(IRequest^ request)
 {
     try

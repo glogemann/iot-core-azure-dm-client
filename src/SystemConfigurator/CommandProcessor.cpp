@@ -417,12 +417,22 @@ IResponse^ HandleProvision(IRequest^ request)
 			wchar_t wszFileName[MAX_PATH] = {};
 			wchar_t wszFileExt[8] = {};
 			_wsplitpath_s(ppkg->Data(), nullptr, 0, nullptr, 0, wszFileName, ARRAYSIZE(wszFileName), wszFileExt, ARRAYSIZE(wszFileExt));
-			std::wstring systemRoot = Utils::GetSystemRootFolder();
-			wstring destPath = Utils::ConcatString(systemRoot.c_str(), wszFileName, wszFileExt);
+			wstring destPath = Utils::ConcatString(L"C:\\Windows\\Provisioning\\Packages\\", wszFileName, wszFileExt);
 			TRACEP(L"DMCommand::HandleProvision dest  : ", destPath.c_str());
-			MoveFile(ppkg->Data(), destPath.c_str());
+			bool bSuccess = MoveFile(ppkg->Data(), destPath.c_str());
 			TRACEP(L"DMCommand::HandleProvision: ", ppkg->Data());
+			TRACEP(L"DMCommand::HandleProvision: ", bSuccess);
 		}
+
+		unsigned long returnCode;
+		string output;
+		wstring command = L"c:\\windows\\system32\\provtool.exe /turn 5";
+		Utils::LaunchProcess(command, returnCode, output);
+		if (returnCode != 0)
+		{
+			TRACEP("DMCommand::HandleProvision - provtool.exe returned an error code.", returnCode);
+		}
+
 		return ref new StatusCodeResponse(ResponseStatus::Success, request->Tag);
 	}
 	catch (Platform::Exception^ e)

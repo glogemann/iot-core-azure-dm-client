@@ -76,7 +76,21 @@ namespace IoTDMBackground
 
             try
             {
-                string deviceConnectionString = await device.GetConnectionStringAsync();
+                string deviceConnectionString;
+                do
+                {
+                    try
+                    {
+                        deviceConnectionString = await device.GetConnectionStringAsync();
+                        break;
+                    }
+                    catch
+                    {
+                        LogError();
+                    }
+                    await Task.Delay(3000);
+                }
+                while (true);
 
                 // Create DeviceClient. Application uses DeviceClient for telemetry messages, device twin
                 // as well as device management

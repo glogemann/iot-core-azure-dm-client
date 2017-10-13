@@ -52,8 +52,16 @@ using Windows.Security.Credentials;
 
 using Windows.ApplicationModel.Background;
 using Windows.Foundation.Diagnostics;
+
+
+using Microsoft.Azure.Devices.Client;
+using Microsoft.Azure.Devices.Shared;
+using Microsoft.Devices.Management;
+using Windows.ApplicationModel.Background;
+using Windows.Foundation.Diagnostics;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Text;
 
 
 
@@ -379,44 +387,48 @@ namespace IOTCoreFirstRun
         {
         }
 
+        private DeviceManagementClient _dmClient;
+
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
 
 
-            //var device = new TpmDevice(0);
-            //try
-            //{
-            //    string deviceConnectionString = await device.GetConnectionStringAsync();
 
-            //    // Create DeviceClient. Application uses DeviceClient for telemetry messages, device twin
-            //    // as well as device management
-            //    deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
+
+            var device = new TpmDevice(0);
+            try
+            {
+                string deviceConnectionString = await device.GetConnectionStringAsync();
+
+                // Create DeviceClient. Application uses DeviceClient for telemetry messages, device twin
+                // as well as device management
+                DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
 
             //    // IDeviceTwin abstracts away communication with the back-end.
             //    // AzureIoTHubDeviceTwinProxy is an implementation of Azure IoT Hub
-            //    IDeviceTwin deviceTwinProxy = new AzureIoTHubDeviceTwinProxy(deviceClient);
+                IDeviceTwin deviceTwinProxy = new AzureIoTHubDeviceTwinProxy(deviceClient);
 
             //    // IDeviceManagementRequestHandler handles device management-specific requests to the app,
             //    // such as whether it is OK to perform a reboot at any givem moment, according the app business logic
             //    // ToasterDeviceManagementRequestHandler is the Toaster app implementation of the interface
-            //    IDeviceManagementRequestHandler appRequestHandler = new DeviceManagementRequestHandler();
+                IDeviceManagementRequestHandler appRequestHandler = new DeviceManagementRequestHandler();
 
             //    // Create the DeviceManagementClient, the main entry point into device management
-            //    _dmClient = await DeviceManagementClient.CreateAsync(deviceTwinProxy, appRequestHandler);
+                _dmClient = await DeviceManagementClient.CreateAsync(deviceTwinProxy, appRequestHandler);
 
             //    // Set the callback for desired properties update. The callback will be invoked
             //    // for all desired properties -- including those specific to device management
-            //    await deviceClient.SetDesiredPropertyUpdateCallback(OnDesiredPropertyUpdate, null);
+                await deviceClient.SetDesiredPropertyUpdateCallback(OnDesiredPropertyUpdate, null);
 
 
-            //    string str = "Device Restarted";
-            //    var message = new Message(Encoding.ASCII.GetBytes(str));
-            //    await deviceClient.SendEventAsync(message);
-            //}
-            //catch
-            //{
-            //}
+                string str = "Device Restarted";
+                var message = new Message(Encoding.ASCII.GetBytes(str));
+                await deviceClient.SendEventAsync(message);
+            }
+            catch
+            {
+            }
 
 
                 await InitRfcommServer();
@@ -471,6 +483,12 @@ namespace IOTCoreFirstRun
             // connect to production server via bluetooth if availiable
             // 
 
+        }
+
+        private async Task OnDesiredPropertyUpdate(TwinCollection desiredProperties, object userContext)
+        {
+            // Let the device management client process properties specific to device management
+            _dmClient.ProcessDeviceManagementProperties(desiredProperties);
         }
     }
 
@@ -583,4 +601,20 @@ namespace IOTCoreFirstRun
             }
         }
     }
- }
+
+    // reg.exe ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\EmbeddedMode\ProcessLauncher" /v AllowedExecutableFilesList /t REG_MULTI_SZ /d "c:\windows\system32\commproxy.exe\0"
+    // Systemconfigurator.exe -install 
+    // sc config SystemConfigurator start=auto
+    class DeviceManagementRequestHandler : IDeviceManagementRequestHandler
+    {
+        public DeviceManagementRequestHandler()
+        {
+        }
+
+        // It is always ok to reboot
+        Task<bool> IDeviceManagementRequestHandler.IsSystemRebootAllowed()
+        {
+            return Task.FromResult(true);
+        }
+    }
+}

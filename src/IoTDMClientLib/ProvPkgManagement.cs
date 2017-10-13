@@ -23,21 +23,15 @@ namespace IoTDMClient
 {
     internal class ProvisionBlobInfo
     {
-        public List<BlobInfo> ProvisioningPackages { get; set; }
+        public BlobInfo ProvisioningPackages { get; set; }
 
         public async Task<string> ProvisionPkgsAsync(DeviceManagementClient client)
         {
             try
             {
                 var provInfo = new ProvisionInfo();
-                if (null != ProvisioningPackages)
-                {
-                    foreach (var ppkgBlobInfo in ProvisioningPackages)
-                    {
-                        var ppkgPath = await ppkgBlobInfo.DownloadToTempAsync(client);
-                        provInfo.ProvisioningPkgs.Add(ppkgPath);
-                    }
-                }
+                var ppkgPath = await ProvisioningPackages.DownloadToTempAsync(client);
+                provInfo.ProvisioningPkgs.Add(ppkgPath);
 
                 await client.ProvisionAsync(provInfo);
 

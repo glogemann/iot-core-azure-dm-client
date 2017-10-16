@@ -96,6 +96,9 @@ namespace IoTDMBackground
                 // as well as device management
                 DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
 
+                // update the initial twin
+                var twin = await deviceClient.GetTwinAsync();
+
                 // IDeviceTwin abstracts away communication with the back-end.
                 // AzureIoTHubDeviceTwinProxy is an implementation of Azure IoT Hub
                 IDeviceTwin deviceTwinProxy = new AzureIoTHubDeviceTwinProxy(deviceClient);
@@ -107,6 +110,7 @@ namespace IoTDMBackground
 
                 // Create the DeviceManagementClient, the main entry point into device management
                 _dmClient = await DeviceManagementClient.CreateAsync(deviceTwinProxy, appRequestHandler);
+                await OnDesiredPropertyUpdate(twin.Properties.Desired, null);
 
                 // Set the callback for desired properties update. The callback will be invoked
                 // for all desired properties -- including those specific to device management

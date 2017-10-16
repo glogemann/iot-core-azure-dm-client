@@ -411,13 +411,14 @@ IResponse^ HandleProvision(IRequest^ request)
 		auto provision = dynamic_cast<ProvisionRequest^>(request);
 		auto info = provision->ProvisionInfo;
 
+		wstring destPath = L"";
 		std::vector<wstring> ppkgs;
 		for each (auto ppkg in info->ProvisioningPkgs)
 		{
 			wchar_t wszFileName[MAX_PATH] = {};
 			wchar_t wszFileExt[8] = {};
 			_wsplitpath_s(ppkg->Data(), nullptr, 0, nullptr, 0, wszFileName, ARRAYSIZE(wszFileName), wszFileExt, ARRAYSIZE(wszFileExt));
-			wstring destPath = Utils::ConcatString(L"C:\\Windows\\Provisioning\\Packages\\", wszFileName, wszFileExt);
+			destPath = Utils::ConcatString(L"C:\\Windows\\Provisioning\\Packages\\", wszFileName, wszFileExt);
 			TRACEP(L"DMCommand::HandleProvision dest  : ", destPath.c_str());
 			bool bSuccess = MoveFile(ppkg->Data(), destPath.c_str());
 			TRACEP(L"DMCommand::HandleProvision: ", ppkg->Data());
@@ -426,7 +427,7 @@ IResponse^ HandleProvision(IRequest^ request)
 
 		unsigned long returnCode;
 		string output;
-		wstring command = L"c:\\windows\\system32\\provtool.exe /turn 5";
+		wstring command = L"c:\\windows\\system32\\provtool.exe /turn 5 ";
 		Utils::LaunchProcess(command, returnCode, output);
 		if (returnCode != 0)
 		{

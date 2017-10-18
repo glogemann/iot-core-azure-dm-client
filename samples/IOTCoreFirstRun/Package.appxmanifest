@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp iot">
   <Identity Name="463baa24-d55b-4c19-9d40-ad99ac031ccd" Publisher="CN=gunterl" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="463baa24-d55b-4c19-9d40-ad99ac031ccd" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
@@ -25,6 +25,7 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <Capability Name="internetClientServer" />
+    <iot:Capability Name="systemManagement" />
     <DeviceCapability Name="bluetooth" />
     <DeviceCapability Name="proximity" />
     <DeviceCapability Name="wifiControl" />
